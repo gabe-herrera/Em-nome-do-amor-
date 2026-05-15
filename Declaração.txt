@@ -1,0 +1,217 @@
+import tkinter as tk
+import random
+import math
+
+#  💕 Programa feito com amor 💕
+
+class CoracaoAnimado:
+    def __init__(self, canvas, x, y):
+        self.canvas = canvas
+        self.x = x
+        self.y = y
+        self.size = random.uniform(14, 28)
+        self.speed = random.uniform(1.2, 2.8)
+        self.alpha = random.randint(60, 180)
+        self.wobble = random.uniform(-1.5, 1.5)
+        self.wobble_speed = random.uniform(0.03, 0.07)
+        self.tick = random.uniform(0, math.pi * 2)
+        cores = ["#FF6B9D", "#FF4D7D", "#FF85B3", "#FF3366", "#FFB3CC", "#E91E8C"]
+        self.cor = random.choice(cores)
+        self.id = self.canvas.create_text(
+            self.x, self.y,
+            text="♥",
+            font=("Arial", int(self.size)),
+            fill=self.cor
+        )
+
+    def mover(self):
+        self.tick += self.wobble_speed
+        dx = math.sin(self.tick) * self.wobble
+        self.x += dx
+        self.y -= self.speed
+        self.canvas.coords(self.id, self.x, self.y)
+        if self.y < -30:
+            self.y = random.randint(500, 650)
+            self.x = random.randint(20, 660)
+
+
+class AppAmor:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("💕 Para Você 💕")
+        self.root.resizable(False, False)
+        self.root.configure(bg="#1a0010")
+
+        largura, altura = 700, 600
+        x_pos = (root.winfo_screenwidth() - largura) // 2
+        y_pos = (root.winfo_screenheight() - altura) // 2
+        self.root.geometry(f"{largura}x{altura}+{x_pos}+{y_pos}")
+
+        # Canvas de fundo com corações
+        self.canvas = tk.Canvas(
+            root, width=largura, height=altura,
+            bg="#1a0010", highlightthickness=0
+        )
+        self.canvas.place(x=0, y=0)
+
+        # Criar corações flutuantes
+        self.coracoes = [
+            CoracaoAnimado(
+                self.canvas,
+                random.randint(20, 680),
+                random.randint(0, 600)
+            )
+            for _ in range(35)
+        ]
+
+        # Moldura central
+        self.frame = tk.Frame(root, bg="#2d0020", bd=0)
+        self.frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        # Título grande
+        self.titulo = tk.Label(
+            self.frame,
+            text="♥  Eu Te Amo  ♥",
+            font=("Georgia", 36, "bold"),
+            fg="#FF6B9D",
+            bg="#2d0020",
+            padx=40, pady=10
+        )
+        self.titulo.pack()
+
+        # Separador decorativo
+        tk.Label(
+            self.frame,
+            text="· · · ✦ · · ·",
+            font=("Arial", 14),
+            fg="#8B2252",
+            bg="#2d0020"
+        ).pack(pady=(0, 10))
+
+        # Mensagem de amor
+        mensagem = (
+            "Você é a pessoa mais especial da minha vida.\n"
+            "Cada dia ao seu lado é uma razão para sorrir.\n"
+            "Você ilumina tudo ao seu redor sem nem perceber.\n\n"
+            "Eu quero estar com você, te fazer feliz,\n"
+            "guardar cada momento que vivemos juntos.\n\n"
+            "Te amo de um jeito que não cabe em palavras. 💕"
+        )
+        self.msg = tk.Label(
+            self.frame,
+            text=mensagem,
+            font=("Georgia", 13),
+            fg="#FFAAD4",
+            bg="#2d0020",
+            justify="center",
+            padx=50, pady=5
+        )
+        self.msg.pack()
+
+        # Pergunta
+        tk.Label(
+            self.frame,
+            text="· · · ✦ · · ·",
+            font=("Arial", 14),
+            fg="#8B2252",
+            bg="#2d0020"
+        ).pack(pady=(10, 5))
+
+        self.pergunta = tk.Label(
+            self.frame,
+            text="Você aceita ser minha namorada? 🌹",
+            font=("Georgia", 16, "italic"),
+            fg="#FF85B3",
+            bg="#2d0020",
+            pady=5
+        )
+        self.pergunta.pack()
+
+        # Frame dos botões
+        self.frame_botoes = tk.Frame(self.frame, bg="#2d0020", pady=20)
+        self.frame_botoes.pack()
+
+        self.btn_sim = tk.Button(
+            self.frame_botoes,
+            text="  ♥  Sim, aceito!  ♥  ",
+            font=("Georgia", 14, "bold"),
+            bg="#E91E8C",
+            fg="white",
+            activebackground="#FF4DB3",
+            activeforeground="white",
+            relief="flat",
+            padx=20, pady=10,
+            cursor="heart",
+            command=self.aceitar
+        )
+        self.btn_sim.grid(row=0, column=0, padx=15)
+
+        self.btn_nao = tk.Button(
+            self.frame_botoes,
+            text="  Talvez...  ",
+            font=("Georgia", 11),
+            bg="#4d0033",
+            fg="#FFAAD4",
+            activebackground="#7a0050",
+            activeforeground="#FFAAD4",
+            relief="flat",
+            padx=14, pady=10,
+            cursor="arrow",
+            command=self.fugir
+        )
+        self.btn_nao.grid(row=0, column=1, padx=15)
+
+        # Label de resposta (escondida inicialmente)
+        self.label_resposta = tk.Label(
+            self.frame,
+            text="",
+            font=("Georgia", 18, "bold"),
+            fg="#FFD700",
+            bg="#2d0020",
+            pady=5
+        )
+        self.label_resposta.pack()
+
+        # Animação
+        self.animar()
+
+    def animar(self):
+        for c in self.coracoes:
+            c.mover()
+        self.root.after(30, self.animar)
+
+    def aceitar(self):
+        self.btn_sim.config(state="disabled")
+        self.btn_nao.config(state="disabled")
+        self.pergunta.config(
+            text="Você disse SIM! 🎉",
+            font=("Georgia", 18, "bold"),
+            fg="#FFD700"
+        )
+        self.label_resposta.config(
+            text="♥ Eu sou a pessoa mais feliz do mundo! ♥\n\n"
+                 "Prometo te fazer sorrir todos os dias. 🌹"
+        )
+        # Adicionar mais corações na celebração
+        for _ in range(20):
+            CoracaoAnimado(
+                self.canvas,
+                random.randint(20, 680),
+                random.randint(300, 650)
+            )
+            self.coracoes.append(
+                CoracaoAnimado(self.canvas, random.randint(20, 680), random.randint(300, 650))
+            )
+
+    def fugir(self):
+        # O botão "Talvez" foge do mouse 😄
+        x = random.randint(10, 580)
+        y = random.randint(10, 100)
+        self.btn_nao.grid_forget()
+        self.btn_nao.place(x=x, y=y)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = AppAmor(root)
+    root.mainloop()
